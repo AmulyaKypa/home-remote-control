@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Control Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">⌂</div>
+            <div>
+                <div class="brand-title">HOME CONTROL</div>
+                <div class="brand-subtitle">IoT Remote Dashboard</div>
+            </div>
+        </div>
+
+        <nav>
+            <a class="nav-item active" href="#dashboard">⌂ <span>Dashboard</span></a>
+            <a class="nav-item" href="#devices">◉ <span>Devices</span></a>
+            <a class="nav-item" href="#monitoring">◌ <span>Monitoring</span></a>
+            <a class="nav-item" href="#history">▤ <span>History</span></a>
+            <a class="nav-item" href="#settings">⚙ <span>Settings</span></a>
+        </nav>
+
+        <div class="sidebar-note">
+            <strong>Prototype mode</strong>
+            <span>LEDs represent appliances. No high-voltage appliances are connected.</span>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <div class="eyebrow">REMOTE HOME CONTROL</div>
+                <h1>Dashboard</h1>
+            </div>
+            <div class="topbar-right">
+                <div id="connectionBadge" class="connection-badge offline">
+                    <span class="dot"></span>
+                    <span id="connectionText">MQTT Disconnected</span>
+                </div>
+                <div class="user-chip">User</div>
+            </div>
+        </header>
+
+        <section id="dashboard" class="content">
+            <div class="hero-card">
+                <div>
+                    <div class="hero-kicker">CONTROL FROM ANYWHERE</div>
+                    <h2>Remote Home Control</h2>
+                    <p>Send ON/OFF commands from the Flask dashboard to the ESP32 through MQTT.</p>
+                </div>
+                <div class="hero-icon">⌁</div>
+            </div>
+
+            <section id="devices">
+                <div class="section-heading">
+                    <div>
+                        <h3>Appliances</h3>
+                        <p>Control your connected prototype devices.</p>
+                    </div>
+                    <div id="espStatus" class="small-status">ESP32 status: waiting</div>
+                </div>
+
+                <div class="device-grid">
+                    <article class="device-card" data-device="light">
+                        <div class="device-top">
+                            <div class="device-icon light-icon">💡</div>
+                            <span class="device-state off" data-state>OFF</span>
+                        </div>
+                        <h4>Light</h4>
+                        <p>Remote LED / light control</p>
+                        <div class="device-controls">
+                            <button class="control-btn on" onclick="sendCommand('light','ON')">ON</button>
+                            <button class="control-btn off" onclick="sendCommand('light','OFF')">OFF</button>
+                        </div>
+                    </article>
+
+                    <article class="device-card" data-device="fan">
+                        <div class="device-top">
+                            <div class="device-icon fan-icon">◌</div>
+                            <span class="device-state off" data-state>OFF</span>
+                        </div>
+                        <h4>Fan</h4>
+                        <p>Remote fan prototype control</p>
+                        <div class="device-controls">
+                            <button class="control-btn on" onclick="sendCommand('fan','ON')">ON</button>
+                            <button class="control-btn off" onclick="sendCommand('fan','OFF')">OFF</button>
+                        </div>
+                    </article>
+
+                    <article class="device-card" data-device="geyser">
+                        <div class="device-top">
+                            <div class="device-icon geyser-icon">♨</div>
+                            <span class="device-state off" data-state>OFF</span>
+                        </div>
+                        <h4>Geyser</h4>
+                        <p>Remote heater prototype control</p>
+                        <div class="device-controls">
+                            <button class="control-btn on" onclick="sendCommand('geyser','ON')">ON</button>
+                            <button class="control-btn off" onclick="sendCommand('geyser','OFF')">OFF</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section id="monitoring" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h3>System Monitoring</h3>
+                        <p>Latest values received from the ESP32.</p>
+                    </div>
+                </div>
+
+                <div class="monitor-grid">
+                    <div class="metric-card">
+                        <span>MQTT Broker</span>
+                        <strong id="mqttMetric">Disconnected</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span>Temperature</span>
+                        <strong id="temperature">—</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span>Humidity</span>
+                        <strong id="humidity">—</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span>Gas</span>
+                        <strong id="gas">—</strong>
+                    </div>
+                </div>
+
+                <div class="system-card">
+                    <div>
+                        <span class="label">Last command</span>
+                        <strong id="lastCommand">No command yet</strong>
+                    </div>
+                    <div>
+                        <span class="label">Last ESP32 update</span>
+                        <strong id="lastUpdate">Waiting for data</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section id="history" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h3>Recent Activity</h3>
+                        <p>Commands sent during this browser session.</p>
+                    </div>
+                    <button class="text-btn" onclick="clearHistory()">Clear</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <div class="empty-history">No commands yet.</div>
+                </div>
+            </section>
+
+            <section id="settings" class="section">
+                <div class="section-heading">
+                    <div>
+                        <h3>Future Extensions</h3>
+                        <p>These modules can be added without changing the core architecture.</p>
+                    </div>
+                </div>
+                <div class="extension-grid">
+                    <div class="extension-card">
+                        <span>🔐</span>
+                        <div>
+                            <h4>Smart Door Lock</h4>
+                            <p>Pretrained face-recognition model → Flask authorization → MQTT → ESP32 lock.</p>
+                        </div>
+                    </div>
+                    <div class="extension-card">
+                        <span>⚠️</span>
+                        <div>
+                            <h4>Gas Leakage Alert</h4>
+                            <p>Gas sensor → ESP32 → MQTT → Flask notification.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <div id="toast" class="toast"></div>
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
